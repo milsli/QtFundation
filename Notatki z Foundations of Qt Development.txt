@@ -1,0 +1,14 @@
+
+1. Do debugowania komendy:
+   - qDebug()
+   - qWarning()
+   - qFatal()
+
+2. A meta-object is an
+object describing the object. In the case of Qt, meta-objects are instances of the class
+QMetaObject and contain information about the class such as its name, its super classes, its
+signals, its slots, and many other interesting things. The important thing to know now is that
+the meta-object knows about the signals and slots.
+
+
+
