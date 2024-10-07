@@ -11,6 +11,9 @@ class QListView;
 class QTableView;
 class BarDelegate;
 
+class QTableView;
+class MulModel;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -21,6 +24,7 @@ public:
 
 private:
     void setupView();
+    void setupTableView();
 
 private:
     std::unique_ptr<QTreeView> tree_;
@@ -31,5 +35,10 @@ private:
     std::unique_ptr<QStandardItemModel> model_;
 
     BarDelegate *delegate_;
+
+
+    QTableView *mulTable_;
+    MulModel *mulModel_;
+
 };
 #endif // MAINWINDOW_H

@@ -20,6 +20,10 @@ set(PROJECT_SOURCES
         bardelegate.cpp
         singleitemview.h
         singleitemview.cpp
+        mulmodel.h
+        mulmodel.cpp
+        objecttreemodel.h
+        objecttreemodel.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -41,7 +45,6 @@ else()
     else()
         add_executable(ForQtFundations
             ${PROJECT_SOURCES}
-
         )
     endif()
 endif()
