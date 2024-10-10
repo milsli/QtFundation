@@ -5,12 +5,35 @@ ObjectTreeModel::ObjectTreeModel(QObject *root, QObject *parent) : QAbstractItem
 
 Qt::ItemFlags ObjectTreeModel::flags(const QModelIndex &index) const
 {
+    if(!index.isValid())
+        return Qt::ItemIsEnabled;
 
+    return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }
 
 QVariant ObjectTreeModel::data(const QModelIndex &index, int role) const
 {
-
+    if( !index.isValid() )
+        return QVariant();
+    if( role == Qt::DisplayRole )
+    {
+        switch( index.column() )
+        {
+        case 0:
+            return static_cast<QObject*>( index.internalPointer() )->objectName();
+        case 1:
+            return static_cast<QObject*>( index.internalPointer() )->
+                metaObject()->className();
+        default:
+            break;
+        }
+    }
+    else if( role == Qt::ToolTipRole )
+    {
+        // ...
+        ;
+    }
+    return QVariant();
 }
 
 QVariant ObjectTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -29,12 +52,18 @@ QVariant ObjectTreeModel::headerData(int section, Qt::Orientation orientation, i
 
 int ObjectTreeModel::rowCount(const QModelIndex &parent) const
 {
+    QObject *parentObject;
+    if( !parent.isValid() )
+        parentObject = m_root;
+    else
+        parentObject = static_cast<QObject*>( parent.internalPointer() );
 
+    return parentObject->children().count();
 }
 
 int ObjectTreeModel::columnCount(const QModelIndex &parent) const
 {
-
+    return 2;
 }
 
 QModelIndex ObjectTreeModel::index(int row, int column, const QModelIndex &parent) const
@@ -51,5 +80,13 @@ QModelIndex ObjectTreeModel::index(int row, int column, const QModelIndex &paren
 
 QModelIndex ObjectTreeModel::parent(const QModelIndex &index) const
 {
-
+    if( !index.isValid() )
+        return QModelIndex();
+    QObject *indexObject = static_cast<QObject*>( index.internalPointer() );
+    QObject *parentObject = indexObject->parent();
+    if( parentObject == m_root )
+        return QModelIndex();
+    QObject *grandParentObject = parentObject->parent();
+    return createIndex( grandParentObject->children().indexOf( parentObject ),
+                       0, parentObject );
 }
