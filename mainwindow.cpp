@@ -7,6 +7,7 @@
 #include <QStandardItemModel>
 #include "singleitemview.h"
 #include "mulmodel.h"
+#include "objecttreemodel.h"
 
 using namespace std;
 
@@ -15,7 +16,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     // setupView();
 
-    setupTableView();
+    // setupTableView();
+    setupTreeView();
 
 }
 
@@ -100,4 +102,23 @@ void MainWindow::setupTableView()
     mulTable_->setModel(mulModel_);
 
     setCentralWidget(mulTable_);
+}
+
+void MainWindow::setupTreeView()
+{
+    root_.setObjectName("root");
+    QObject *mama = new QObject(&root_);
+    mama->setObjectName("Kądziel");
+    QObject *tata = new QObject(&root_);
+    tata->setObjectName("Miecz");
+
+
+
+
+    treeModel_ = new ObjectTreeModel(&root_);
+    tree_ = make_unique<QTreeView>();
+
+    tree_->setModel(treeModel_);
+
+    setCentralWidget(tree_.get());
 }

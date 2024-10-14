@@ -13,6 +13,7 @@ class BarDelegate;
 
 class QTableView;
 class MulModel;
+class ObjectTreeModel;
 
 class MainWindow : public QMainWindow
 {
@@ -25,6 +26,7 @@ public:
 private:
     void setupView();
     void setupTableView();
+    void setupTreeView();
 
 private:
     std::unique_ptr<QTreeView> tree_;
@@ -39,6 +41,10 @@ private:
 
     QTableView *mulTable_;
     MulModel *mulModel_;
+    ObjectTreeModel *treeModel_;
+
+    QObject root_;
+
 
 };
 #endif // MAINWINDOW_H

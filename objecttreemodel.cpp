@@ -1,6 +1,7 @@
 #include "objecttreemodel.h"
 
 ObjectTreeModel::ObjectTreeModel(QObject *root, QObject *parent) : QAbstractItemModel{parent}
+    , m_root{root}
 {}
 
 Qt::ItemFlags ObjectTreeModel::flags(const QModelIndex &index) const
@@ -28,11 +29,11 @@ QVariant ObjectTreeModel::data(const QModelIndex &index, int role) const
             break;
         }
     }
-    else if( role == Qt::ToolTipRole )
-    {
-        // ...
-        ;
-    }
+    // else if( role == Qt::ToolTipRole )
+    // {
+    //     // ...
+    //     ;
+    // }
     return QVariant();
 }
 
@@ -48,7 +49,8 @@ QVariant ObjectTreeModel::headerData(int section, Qt::Orientation orientation, i
         return QString( "Class" );
     default:
         return QVariant();
-    }}
+    }
+}
 
 int ObjectTreeModel::rowCount(const QModelIndex &parent) const
 {
@@ -76,16 +78,20 @@ QModelIndex ObjectTreeModel::index(int row, int column, const QModelIndex &paren
     if( row >= 0 && row < parentObject->children().count() )
         return createIndex( row, column, parentObject->children().at( row ) );
     else
-        return QModelIndex();}
+        return QModelIndex();
+}
 
 QModelIndex ObjectTreeModel::parent(const QModelIndex &index) const
 {
     if( !index.isValid() )
         return QModelIndex();
+
     QObject *indexObject = static_cast<QObject*>( index.internalPointer() );
     QObject *parentObject = indexObject->parent();
+
     if( parentObject == m_root )
         return QModelIndex();
+
     QObject *grandParentObject = parentObject->parent();
     return createIndex( grandParentObject->children().indexOf( parentObject ),
                        0, parentObject );
