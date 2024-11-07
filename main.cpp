@@ -14,6 +14,7 @@
 using namespace std;
 
 // DOING THINGS IN PARALLEL
+// Semaphores
 #include <QThread>
 bool stopThreads = false;
 class TextThread : public QThread
@@ -36,12 +37,27 @@ void TextThread::run()
         sleep( 1 );
     }
 }
+
+#include <QMutex>
+
+const uint8_t philosophers = 5;
+QMutex *tab = new QMutex[philosophers];
+uint8_t iterations = 200;
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
+    QMutex *tab = new QMutex[philosophers];
+
+    // starving philosophers
+
+
 
     cout << "\nEveryting is okay\n";
+
+
+    delete [] tab;
 
     return 0;
 }

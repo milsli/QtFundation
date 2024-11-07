@@ -30,6 +30,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(ForQtFundations
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        philosopher.h philosopher.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET ForQtFundations APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
