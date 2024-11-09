@@ -27,11 +27,11 @@ void Philosopher::run()
 
         if(locked == true)
         {
-            uint32_t rnd = (5 * rand())/(RAND_MAX + 1);
+            uint32_t rnd = (4 * rand())/(RAND_MAX + 1);
             uint8_t eating = rnd + 2;
 
-            capacity_ -= eating;
-            msleep(700 * eating);
+            capacity_ -= (eating + 1);
+            msleep(600 * eating);
 
             mutexTab[phNumber_].unlock();
             mutexTab[(phNumber_ + 1) % philosophers].unlock();

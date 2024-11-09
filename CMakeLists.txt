@@ -14,23 +14,15 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
         main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        bardelegate.h
-        bardelegate.cpp
-        singleitemview.h
-        singleitemview.cpp
-        mulmodel.h
-        mulmodel.cpp
-        objecttreemodel.h
-        objecttreemodel.cpp
+        philosopher.h
+        philosopher.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(ForQtFundations
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        philosopher.h philosopher.cpp
+
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET ForQtFundations APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
