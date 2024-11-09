@@ -13,6 +13,7 @@ protected:
 
 private:
     uint8_t phNumber_;
+    int16_t capacity_;
 };
 
 #endif // PHILOSOPHER_H
