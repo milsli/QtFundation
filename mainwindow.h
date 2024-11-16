@@ -11,6 +11,7 @@ class Philosopher;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -33,11 +34,14 @@ private:
 private slots:
     void setupSimulation();
     void startSimulation(const int phNumber);
-    void updateDraw(PhState st, int nr);
+    void updateDraw(int nr, PhState st, int16_t capacity);
 
 private:
     int phNumber_;
     int plateSize_;
+    int startCapacity_;
+    QVector<int> capacityTab_;
+
 };
 
 #endif // MAINWINDOW_H

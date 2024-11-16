@@ -8,19 +8,19 @@ class Philosopher : public QThread
 {
     Q_OBJECT
 public:
-    explicit Philosopher(const uint8_t philosophers, const uint8_t phNumber, QObject *parent = nullptr);
+    explicit Philosopher(const uint8_t philosophers, const uint8_t phNumber, int capacity, QObject *parent = nullptr);
     // ~Philosopher(){wait();}
 
 protected:
     void run() override;
 
 signals:
-    void updateState(PhState, int);
+    void updateState(int, PhState, int16_t);
 
 private:
     uint8_t philosophers_;
     uint8_t phNumber_;
-    int16_t capacity_;
+    int capacity_;
     PhState previousState_;
 };
 

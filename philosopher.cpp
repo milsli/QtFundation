@@ -10,16 +10,15 @@ using namespace std;
 
 extern QVector<JoinedData> controlTab;
 
-
 random_device rd;
 mt19937 mt(rd());
-uniform_int_distribution<int> dist(0, 4);
+uniform_int_distribution<int> dist(3, 8);
 
-Philosopher::Philosopher(const uint8_t philosophers, const uint8_t phNumber, QObject *parent)
+Philosopher::Philosopher(const uint8_t philosophers, const uint8_t phNumber, int capacity, QObject *parent)
     : QThread{parent}
     , philosophers_{philosophers}
     , phNumber_{phNumber}
-    , capacity_{40}
+    , capacity_{capacity}
 {
     qDebug() << "Filozof nr " << phNumber_ << " constructed";
 }
@@ -33,7 +32,7 @@ void Philosopher::run()
         if(controlTab[phNumber_].phState != PhState::WAITING)
         {
             controlTab[phNumber_].phState = PhState::WAITING;
-            emit updateState(controlTab[phNumber_].phState, phNumber_);
+            emit updateState(phNumber_, controlTab[phNumber_].phState, capacity_);
         }
         controlTab[phNumber_].phMutex->lock();
         controlTab[phNumber_].locked = true;
@@ -42,37 +41,36 @@ void Philosopher::run()
         if(locked == true)
         {
             controlTab[(phNumber_ + 1) % philosophers_].locked = true;
-            uint32_t rnd = dist(mt);
-            uint8_t eating = rnd + 2;
+            uint32_t eatingTime = dist(mt);
 
             controlTab[phNumber_].phState = PhState::EATING;
-            emit updateState(controlTab[phNumber_].phState, phNumber_);
+            emit updateState(phNumber_, controlTab[phNumber_].phState, capacity_);
 
-            capacity_ -= (eating + 5);
-            msleep(700 * eating);
+            capacity_ -= (eatingTime);
+            msleep(700 * eatingTime);
 
             controlTab[phNumber_].locked = false;
             controlTab[(phNumber_ + 1) % philosophers_].locked = false;
             controlTab[phNumber_].phMutex->unlock();
             controlTab[(phNumber_ + 1) % philosophers_].phMutex->unlock();
 
-            qDebug() << "Filozof nr " << phNumber_  + 1 << " jadł przez " << eating << " minuty";
+            qDebug() << "Filozof nr " << phNumber_  + 1 << " jadł przez " << eatingTime << " minuty";
         }
         else
         {
             controlTab[phNumber_].phState = PhState::THINKING;
-            emit updateState(controlTab[phNumber_].phState, phNumber_);
+            emit updateState(phNumber_, controlTab[phNumber_].phState, capacity_);
 
             controlTab[phNumber_].locked = false;
             controlTab[phNumber_].phMutex->unlock();
 
-            msleep(1200);       // thinking
+            sleep(2);       // thinking
         }
 
         previousState_ = controlTab[phNumber_].phState;
     }
     controlTab[phNumber_].phState = PhState::FULL;
-    emit updateState(controlTab[phNumber_].phState, phNumber_);
+    emit updateState(phNumber_, controlTab[phNumber_].phState, capacity_ >= 0 ? capacity_ : 0);
 
     qDebug() << "\nFilozof nr " << phNumber_  + 1 << " najedzony\n";
 }

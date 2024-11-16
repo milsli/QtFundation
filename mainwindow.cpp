@@ -9,10 +9,10 @@
 
 QVector<JoinedData> controlTab;
 
-
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     , phNumber_{0}
     , plateSize_{30}
+    , startCapacity_{200}
 {
     setGeometry(10, 30, 1800, 950);
     setupMenu();
@@ -81,7 +81,7 @@ void MainWindow::paintPhilosopher(const int nr, QPainter &painter, const int yPo
     int y = -yPos;
 
     int headSize = 40;
-    painter.drawText(x, y, QString::number(nr));
+    painter.drawText(x, y, QString::number(nr + 1));
 
     painter.drawEllipse({x, y}, headSize / 2, headSize / 2);
 
@@ -89,16 +89,27 @@ void MainWindow::paintPhilosopher(const int nr, QPainter &painter, const int yPo
     int startAngle = 30 * 16;
     int spanAngle = 120 * 16;
     painter.drawChord(torso, startAngle, spanAngle);
+    painter.drawText(x - 8, y + headSize, QString::number(capacityTab_[nr]));
 
     paintPlate(painter, x, y);
 
     painter.save();
 
-    painter.rotate(-angle / 2);
-    if(controlTab[nr-1].locked == true)
+    if(controlTab[nr].phState == PhState::EATING)
+    {
+        painter.rotate(-angle / 4);
         paintStick(painter, x, y - 90);
+    }
+    else if(controlTab[nr > 0 ? nr - 1 : (phNumber_ - 1)].phState == PhState::EATING)
+    {
+        painter.rotate(-3 * (angle / 4));
+        paintStick(painter, x, y - 90);
+    }
     else
+    {
+        painter.rotate(-angle / 2);
         paintStick(painter, x, y);
+    }
 
     painter.restore();
 }
@@ -111,7 +122,7 @@ void MainWindow::paintPhilosophers(QPainter &painter, const int yPos)
 
     for(int i = 0; i < phNumber_; ++i)
     {
-        paintPhilosopher(i + 1, painter, yPos, controlTab[i].phState, angle);
+        paintPhilosopher(i, painter, yPos, controlTab[i].phState, angle);
         painter.rotate(angle);
     }
 
@@ -189,15 +200,18 @@ void MainWindow::setupSimulation()
         phNumber_ = phNumber;
 
         controlTab.resize(phNumber_);
+        capacityTab_.resize(phNumber_);
         int counter = 0;
         for(JoinedData & d: controlTab)
         {
-            Philosopher *ph = new Philosopher(phNumber_, counter, this);
+            Philosopher *ph = new Philosopher(phNumber_, counter, startCapacity_ , this);
             d.philosopher = ph;
-            connect(d.philosopher, SIGNAL(updateState(PhState, int)), this, SLOT(updateDraw(PhState, int)));
+            connect(d.philosopher, SIGNAL(updateState(int, PhState, int16_t)), this, SLOT(updateDraw(int, PhState, int16_t)));
 
             d.phMutex = new QMutex;
             d.phState = PhState::WAITING;
+
+            capacityTab_[counter] = startCapacity_;
 
             ++counter;
         }
@@ -205,7 +219,7 @@ void MainWindow::setupSimulation()
     }
 }
 
-void MainWindow::updateDraw(PhState st, int nr)
+void MainWindow::updateDraw(int nr, PhState st, int16_t capacity)
 {
     QString state = "EATING";
     if(st == PhState::FULL)
@@ -220,5 +234,6 @@ void MainWindow::updateDraw(PhState st, int nr)
     else if(st == PhState::WAITING)
         state = "WAITING";
 
+    capacityTab_[nr] = capacity;
     update();
 }
