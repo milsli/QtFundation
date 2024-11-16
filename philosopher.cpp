@@ -4,20 +4,22 @@
 #include <QDebug>
 
 #include <QException>
+#include <random>
 
 using namespace std;
 
 extern QVector<JoinedData> controlTab;
-//extern QMutex *mutexTab;
 
-QMutex releaseMutex;
-extern QVector<PhState> statesVector;
+
+random_device rd;
+mt19937 mt(rd());
+uniform_int_distribution<int> dist(0, 4);
 
 Philosopher::Philosopher(const uint8_t philosophers, const uint8_t phNumber, QObject *parent)
     : QThread{parent}
     , philosophers_{philosophers}
     , phNumber_{phNumber}
-    , capacity_{60}
+    , capacity_{40}
 {
     qDebug() << "Filozof nr " << phNumber_ << " constructed";
 }
@@ -28,33 +30,26 @@ void Philosopher::run()
     while(capacity_ > 0)
     {
 
-        if(statesVector[phNumber_] != PhState::WAITING)
+        if(controlTab[phNumber_].phState != PhState::WAITING)
         {
-            statesVector[phNumber_] = PhState::WAITING;
-            emit updateState(statesVector[phNumber_], phNumber_);
+            controlTab[phNumber_].phState = PhState::WAITING;
+            emit updateState(controlTab[phNumber_].phState, phNumber_);
         }
         controlTab[phNumber_].phMutex->lock();
         controlTab[phNumber_].locked = true;
-        // mutexTab[phNumber_].lock();
 
-//        bool locked = mutexTab[(phNumber_ + 1) % philosophers_].tryLock();
         bool locked = controlTab[(phNumber_ + 1) % philosophers_].phMutex->tryLock();
-
         if(locked == true)
         {
             controlTab[(phNumber_ + 1) % philosophers_].locked = true;
-            uint32_t rnd = (4 * rand())/(RAND_MAX + 1);
+            uint32_t rnd = dist(mt);
             uint8_t eating = rnd + 2;
 
-            statesVector[phNumber_] = PhState::EATING;
-            emit updateState(statesVector[phNumber_], phNumber_);
+            controlTab[phNumber_].phState = PhState::EATING;
+            emit updateState(controlTab[phNumber_].phState, phNumber_);
 
             capacity_ -= (eating + 5);
             msleep(700 * eating);
-
-            //    QMutexLocker locl(&releaseMutex);
-                // mutexTab[phNumber_].unlock();
-                // mutexTab[(phNumber_ + 1) % philosophers_].unlock();
 
             controlTab[phNumber_].locked = false;
             controlTab[(phNumber_ + 1) % philosophers_].locked = false;
@@ -65,9 +60,8 @@ void Philosopher::run()
         }
         else
         {
-            statesVector[phNumber_] = PhState::THINKING;
-            emit updateState(statesVector[phNumber_], phNumber_);
-            //mutexTab[phNumber_].unlock();
+            controlTab[phNumber_].phState = PhState::THINKING;
+            emit updateState(controlTab[phNumber_].phState, phNumber_);
 
             controlTab[phNumber_].locked = false;
             controlTab[phNumber_].phMutex->unlock();
@@ -75,10 +69,10 @@ void Philosopher::run()
             msleep(1200);       // thinking
         }
 
-        previousState_ = statesVector[phNumber_];
+        previousState_ = controlTab[phNumber_].phState;
     }
-    statesVector[phNumber_] = PhState::FULL;
-    emit updateState(statesVector[phNumber_], phNumber_);
+    controlTab[phNumber_].phState = PhState::FULL;
+    emit updateState(controlTab[phNumber_].phState, phNumber_);
 
     qDebug() << "\nFilozof nr " << phNumber_  + 1 << " najedzony\n";
 }

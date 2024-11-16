@@ -38,8 +38,6 @@ private slots:
 private:
     int phNumber_;
     int plateSize_;
-    QVector<Philosopher*> philosopherTab_;
-
 };
 
 #endif // MAINWINDOW_H
