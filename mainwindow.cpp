@@ -38,23 +38,25 @@ void MainWindow::paintEvent(QPaintEvent *event)
 
 void MainWindow::setupMenu()
 {
-    QAction *setupAction = new QAction("Setup");
-    QAction *startAction = new QAction("Start");
+    setupAction_ = new QAction("Setup");
+    startAction_ = new QAction("Start");
     QMenu *simulationMenu = new QMenu("Simulation", this);
 
-    simulationMenu->addAction(setupAction);
-    simulationMenu->addAction(startAction);
+    simulationMenu->addAction(setupAction_);
+    simulationMenu->addAction(startAction_);
+    startAction_->setDisabled(true);
 
     QMenuBar *menuBar = new QMenuBar(this);
     menuBar->addMenu(simulationMenu);
     setMenuBar(menuBar);
 
-    connect(setupAction, &QAction::triggered, this, &MainWindow::setupSimulation);
-    connect(startAction, &QAction::triggered, this, &MainWindow::startSimulation);
+    connect(setupAction_, &QAction::triggered, this, &MainWindow::setupSimulation);
+    connect(startAction_, &QAction::triggered, this, &MainWindow::startSimulation);
 }
 
-void MainWindow::startSimulation(const int phNumber)
+void MainWindow::startSimulation()
 {
+    startAction_->setDisabled(true);
     for(uint8_t i = 0; i < phNumber_; ++i)
     {
         controlTab[i].philosopher->start();
@@ -216,6 +218,8 @@ void MainWindow::setupSimulation()
             ++counter;
         }
         update();
+        startAction_->setEnabled(true);
+        setupAction_->setEnabled(false);
     }
 }
 
@@ -227,6 +231,9 @@ void MainWindow::updateDraw(int nr, PhState st, int16_t capacity)
         state = "FULL";
         controlTab[nr].philosopher->wait();
         delete controlTab[nr].philosopher;
+
+        if(!setupAction_->isEnabled())
+            setupAction_->setEnabled(true);
 
     }
     else if(st == PhState::THINKING)

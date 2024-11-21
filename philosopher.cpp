@@ -13,6 +13,7 @@ extern QVector<JoinedData> controlTab;
 random_device rd;
 mt19937 mt(rd());
 uniform_int_distribution<int> dist(3, 8);
+uniform_int_distribution<int> thinking(2, 4);
 
 Philosopher::Philosopher(const uint8_t philosophers, const uint8_t phNumber, int capacity, QObject *parent)
     : QThread{parent}
@@ -64,7 +65,7 @@ void Philosopher::run()
             controlTab[phNumber_].locked = false;
             controlTab[phNumber_].phMutex->unlock();
 
-            sleep(2);       // thinking
+            sleep(thinking(mt));       // thinking
         }
 
         previousState_ = controlTab[phNumber_].phState;

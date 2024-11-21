@@ -33,7 +33,7 @@ private:
 
 private slots:
     void setupSimulation();
-    void startSimulation(const int phNumber);
+    void startSimulation();
     void updateDraw(int nr, PhState st, int16_t capacity);
 
 private:
@@ -41,6 +41,10 @@ private:
     int plateSize_;
     int startCapacity_;
     QVector<int> capacityTab_;
+
+    QAction *setupAction_;
+    QAction *startAction_;
+
 
 };
 
